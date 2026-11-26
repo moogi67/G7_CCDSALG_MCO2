@@ -56,35 +56,27 @@ public class BSTExperiment {
 
         BinarySearchTree kOne = analyzer.analyze("ACGT", 1);
         check("k = 1: four distinct one-character k-mers", kOne.size() == 4);
-        check("k = 1: each base occurs once", kOne.getCount("A") == 1
-            && kOne.getCount("C") == 1 && kOne.getCount("G") == 1
-            && kOne.getCount("T") == 1);
+        check("k = 1: each base occurs once", kOne.getCount("A") == 1 && kOne.getCount("C") == 1 && kOne.getCount("G") == 1 && kOne.getCount("T") == 1);
 
         BinarySearchTree kEqualsN = analyzer.analyze("ACGT", 4);
-        check("k = sequence length: one k-mer with count 1",
-            kEqualsN.size() == 1 && kEqualsN.getCount("ACGT") == 1);
+        check("k = sequence length: one k-mer with count 1", kEqualsN.size() == 1 && kEqualsN.getCount("ACGT") == 1);
 
         BinarySearchTree identical = analyzer.analyze("AAAAAA", 3);
-        check("All-identical sequence: AAA occurs 4 times",
-            identical.size() == 1 && identical.getCount("AAA") == 4);
+        check("All-identical sequence: AAA occurs 4 times", identical.size() == 1 && identical.getCount("AAA") == 4);
 
         BinarySearchTree overlapping = analyzer.analyze("ATATAT", 2);
-        check("Overlapping windows: AT=3 and TA=2",
-            overlapping.getCount("AT") == 3 && overlapping.getCount("TA") == 2);
-        check("Distribution is in alphabetical order",
-            overlapping.getDistribution().keySet().toString().equals("[AT, TA]"));
+        check("Overlapping windows: AT=3 and TA=2", overlapping.getCount("AT") == 3 && overlapping.getCount("TA") == 2);
+        check("Distribution is in alphabetical order", overlapping.getDistribution().keySet().toString().equals("[AT, TA]"));
 
         expectInvalid("Reject k = 0", () -> analyzer.analyze("ACGT", 0));
-        expectInvalid("Reject k greater than sequence length",
-            () -> analyzer.analyze("ACGT", 5));
+        expectInvalid("Reject k greater than sequence length", () -> analyzer.analyze("ACGT", 5));
         expectInvalid("Reject empty DNA sequence", () -> analyzer.analyze("", 1));
         expectInvalid("Reject invalid DNA character", () -> analyzer.analyze("ACNX", 2));
         expectInvalid("Reject lowercase DNA sequence", () -> analyzer.analyze("acgt", 2));
 
         BinarySearchTree destroyed = analyzer.analyze("ACGTAC", 2);
         destroyed.destroy();
-        check("destroy() empties the BST", destroyed.isEmpty() && destroyed.size() == 0
-            && !destroyed.search("AC"));
+        check("destroy() empties the BST", destroyed.isEmpty() && destroyed.size() == 0 && !destroyed.search("AC"));
     }
 
     private static void testHashTableAgreement() {
@@ -96,12 +88,8 @@ public class BSTExperiment {
         for (String dna : sequences) {
             for (int k : kValues) {
                 BinarySearchTree bst = analyzer.analyze(dna, k);
-                boolean polynomialMatch = matchesHashTable(
-                    dna, k, bst, HashTable::polynomialHash
-                );
-                boolean fnvMatch = matchesHashTable(
-                    dna, k, bst, HashFunctions::fnv1aHash
-                );
+                boolean polynomialMatch = matchesHashTable(dna, k, bst, HashTable::polynomialHash);
+                boolean fnvMatch = matchesHashTable(dna, k, bst, HashFunctions::fnv1aHash);
                 allMatch = allMatch && polynomialMatch && fnvMatch;
                 comparisons += 2;
             }
