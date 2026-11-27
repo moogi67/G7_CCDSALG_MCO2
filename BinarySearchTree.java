@@ -1,3 +1,8 @@
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class BinarySearchTree {
     private Node root;
     private int distinctKmerCount;
@@ -91,22 +96,8 @@ public class BinarySearchTree {
 
     /** Removes all nodes from the BST. */
     public void destroy() {
-        clearSubtree(root);
         root = null;
         distinctKmerCount = 0;
-    }
-
-    /** Clears the nodes recursively. */
-    private void clearSubtree(Node node) {
-        if (node == null) {
-            return;
-        }
-
-        clearSubtree(node.getLeft());
-        clearSubtree(node.getRight());
-
-        node.setLeft(null);
-        node.setRight(null);
     }
 
     public int size() {
@@ -117,31 +108,41 @@ public class BinarySearchTree {
         return root == null;
     }
 
+    /** Returns the distribution in alphabetical order using in-order traversal. */
+    public Map<String, Integer> getDistribution() {
+        Map<String, Integer> distribution = new LinkedHashMap<>();
+        Deque<Node> stack = new ArrayDeque<>();
+        Node current = root;
+
+        while (current != null || !stack.isEmpty()) {
+            while (current != null) {
+                stack.push(current);
+                current = current.getLeft();
+            }
+
+            current = stack.pop();
+            distribution.put(current.getKmer(), current.getCount());
+            current = current.getRight();
+        }
+
+        return distribution;
+    }
+
     /** Prints the k-mer distribution in alphabetical order. */
     public void printDistribution() {
         System.out.println("K-mer    Occurrences");
-        printInOrder(root);
-    }
 
-    /** Prints the BST using in-order traversal. */
-    private void printInOrder(Node node) {
-        if (node == null) {
-            return;
+        for (Map.Entry<String, Integer> entry : getDistribution().entrySet()) {
+            System.out.println(entry.getKey() + "        " + entry.getValue());
         }
-
-        printInOrder(node.getLeft());
-
-        System.out.println(
-            node.getKmer() + "        " + node.getCount()
-        );
-
-        printInOrder(node.getRight());
     }
 
     /** Checks whether the k-mer is valid. */
     private void validateKmer(String kmer) {
         if (kmer == null || kmer.isEmpty()) {
-            throw new IllegalArgumentException("A k-mer cannot be null or empty.");
+            throw new IllegalArgumentException(
+                "A k-mer cannot be null or empty."
+            );
         }
     }
 }
